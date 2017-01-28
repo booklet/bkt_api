@@ -58,13 +58,14 @@ class BKTApiRequest
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($curl, CURLOPT_HEADER, 1); // headers code
 
-        $token = $_COOKIE['access_token'] ?? null;
+        $token = Config::get('access_token') ?? $_COOKIE['access_token'] ?? null;
 
+        // TODO
         // if we set to Content-type: application/json
         // we cant send files
 
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
-#            "Content-type: application/json",
+        //  "Content-type: application/json",
             "Authorization: $token"
         ]);
 

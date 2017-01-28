@@ -5,7 +5,6 @@
       "type": "package",
       "package": {
         "name": "boooklet/bkt_api",
-        "version": "0.1.0",
         "type": "package",
         "source": {
           "url": "git@github.com/boooklet/bkt_api.git",
@@ -13,7 +12,7 @@
           "reference": "master"
         }
       }
-    },
+    }
   ],
   "autoload": {
       "classmap": [
