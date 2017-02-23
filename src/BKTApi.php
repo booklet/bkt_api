@@ -22,7 +22,7 @@ class BKTApi
     public static function putByPost($resource, $data)
     {
         if (!isset($data['_method'])) {
-            $data = ['_method' => 'PUT'];
+            $data['_method'] = 'PUT';
         }
         $api = new self;
         return $api->request('POST', $resource, $data);
@@ -37,7 +37,7 @@ class BKTApi
     public static function deleteByPost($resource)
     {
         $data = [];
-        $data = ['_method' => 'DELETE'];
+        $data['_method'] => 'DELETE';
         $api = new self;
         return $api->request('POST', $resource, $data);
     }
