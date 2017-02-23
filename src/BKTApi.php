@@ -37,7 +37,7 @@ class BKTApi
     public static function deleteByPost($resource)
     {
         $data = [];
-        $data['_method'] => 'DELETE';
+        $data['_method'] = 'DELETE';
         $api = new self;
         return $api->request('POST', $resource, $data);
     }
