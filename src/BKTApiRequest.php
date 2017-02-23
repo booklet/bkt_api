@@ -23,7 +23,7 @@ class BKTApiRequest
             case "POST":
                 curl_setopt($curl, CURLOPT_POST, true);
                 if (!empty($this->data)) {
-                    $post_data = $this->http_build_query_for_curl($this->data, $post_data);
+                    $post_data = $this->http_build_query_for_curl($this->data);
                     curl_setopt($curl, CURLOPT_POSTFIELDS, $post_data);
                 }
                 break;
@@ -31,7 +31,7 @@ class BKTApiRequest
             case "PUT":
                 curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
                 if (!empty($this->data)) {
-                    $post_data = $this->http_build_query_for_curl($this->data, $post_data);
+                    $post_data = $this->http_build_query_for_curl($this->data);
                     curl_setopt($curl, CURLOPT_POSTFIELDS, $post_data);
                 }
                 break;
