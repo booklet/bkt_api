@@ -21,27 +21,18 @@ class BKTApiRequest
 
         switch ($this->method) {
             case "POST":
-                curl_setopt($curl, CURLOPT_POST, 1);
-
+                curl_setopt($curl, CURLOPT_POST, true);
                 if (!empty($this->data)) {
-                    $flatten_post_array_data = $this->options['flatten_arrays'] ?? false;
-                    if ($flatten_post_array_data) {
-                        // curl_setopt($curl, CURLOPT_POSTFIELDS, $this->data);
-
-                        $this->http_build_query_for_curl($this->data, $post_data);
-                        curl_setopt($curl, CURLOPT_POSTFIELDS, $post_data);
-                    } else {
-                        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($this->data));
-                    }
+                    $post_data = $this->http_build_query_for_curl($this->data, $post_data);
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, $post_data);
                 }
-
                 break;
 
             case "PUT":
                 curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
                 if (!empty($this->data)) {
-                    curl_setopt($curl, CURLOPT_POST, true);
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($this->data));
+                    $post_data = $this->http_build_query_for_curl($this->data, $post_data);
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, $post_data);
                 }
                 break;
 
@@ -107,19 +98,24 @@ class BKTApiRequest
         return $headers;
     }
 
-    public function http_build_query_for_curl($arrays, &$new = array(), $prefix = null)
+    /**
+     * This function is useful for serializing multidimensional arrays, and avoid getting
+     * the "Array to string conversion" notice
+     * Also support file by CURLFile class
+     */
+    public function http_build_query_for_curl($arrays, $new = [], $prefix = null)
     {
-        if (is_object($arrays) ) {
+        if (is_object($arrays)) {
             $arrays = get_object_vars($arrays);
         }
-
         foreach ($arrays as $key => $value) {
             $k = isset($prefix) ? $prefix . '[' . $key . ']' : $key;
-            if (is_array($value) or is_object($value)) {
-                http_build_query_for_curl($value, $new, $k);
+            if (!$value instanceof \CURLFile and (is_array($value) or is_object($value))) {
+                $new = $this->http_build_query_for_curl($value, $new, $k);
             } else {
                 $new[$k] = $value;
             }
         }
+        return $new;
     }
 }
