@@ -31,8 +31,8 @@ class BKTApiRequest
             case "PUT":
                 curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
                 if (!empty($this->data)) {
-                    $post_data = $this->http_build_query_for_curl($this->data);
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, $post_data);
+                    curl_setopt($curl, CURLOPT_POST, true);
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($this->data));
                 }
                 break;
 
