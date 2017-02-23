@@ -26,7 +26,10 @@ class BKTApiRequest
                 if (!empty($this->data)) {
                     $flatten_post_array_data = $this->options['flatten_arrays'] ?? false;
                     if ($flatten_post_array_data) {
-                        curl_setopt($curl, CURLOPT_POSTFIELDS, $this->data);
+                        // curl_setopt($curl, CURLOPT_POSTFIELDS, $this->data);
+
+                        $this->http_build_query_for_curl($this->data, $post_data);
+                        curl_setopt($curl, CURLOPT_POSTFIELDS, $post_data);
                     } else {
                         curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($this->data));
                     }
@@ -102,5 +105,21 @@ class BKTApiRequest
         }
 
         return $headers;
+    }
+
+    public function http_build_query_for_curl($arrays, &$new = array(), $prefix = null)
+    {
+        if (is_object($arrays) ) {
+            $arrays = get_object_vars($arrays);
+        }
+
+        foreach ($arrays as $key => $value) {
+            $k = isset($prefix) ? $prefix . '[' . $key . ']' : $key;
+            if (is_array($value) or is_object($value)) {
+                http_build_query_for_curl($value, $new, $k);
+            } else {
+                $new[$k] = $value;
+            }
+        }
     }
 }
