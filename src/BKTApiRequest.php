@@ -19,7 +19,7 @@ class BKTApiRequest
         $base_url = Config::get('env') == 'production' ? 'https://api.booklet.pl' : 'http://api.booklet.dev';
 
         // Temp fix to skip use SSL
-        if (Config::get('env') == 'production' and !has_ssl($domain)) {
+        if (Config::get('env') == 'production' and !$this->has_ssl($domain)) {
             $base_url = 'http://api.booklet.pl';
         }
 
