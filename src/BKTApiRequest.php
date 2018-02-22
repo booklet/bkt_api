@@ -5,7 +5,7 @@ class BKTApiRequest
     public $resource;
     public $data;
 
-    public function __construct($method, $resource, $data=null, $options = [])
+    public function __construct($method, $resource, $data = null, $options = [])
     {
         $this->method = $method;
         $this->resource = $resource;
@@ -17,10 +17,16 @@ class BKTApiRequest
     {
         $curl = curl_init();
         $base_url = Config::get('env') == 'production' ? 'https://api.booklet.pl' : 'http://api.booklet.dev';
+
+        // Temp fix to skip use SSL
+        if (Config::get('env') == 'production' and !has_ssl($domain)) {
+            $base_url = 'http://api.booklet.pl';
+        }
+
         $url = $base_url . '/v1' . $this->resource;
 
         switch ($this->method) {
-            case "POST":
+            case 'POST':
                 curl_setopt($curl, CURLOPT_POST, true);
                 if (!empty($this->data)) {
                     $post_data = $this->http_build_query_for_curl($this->data);
@@ -28,22 +34,23 @@ class BKTApiRequest
                 }
                 break;
 
-            case "PUT":
-                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
+            case 'PUT':
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PUT');
                 if (!empty($this->data)) {
                     curl_setopt($curl, CURLOPT_POST, true);
                     curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($this->data));
                 }
                 break;
 
-            case "DELETE":
-                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+            case 'DELETE':
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
                 break;
 
             // GET
             default:
-                if (!empty($this->data))
-                    $url = sprintf("%s?%s", $url, json_encode($this->data));
+                if (!empty($this->data)) {
+                    $url = sprintf('%s?%s', $url, json_encode($this->data));
+                }
         }
 
         curl_setopt($curl, CURLOPT_URL, $url);
@@ -60,7 +67,7 @@ class BKTApiRequest
 
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
         //  "Content-type: application/json",
-            "Authorization: $token"
+            "Authorization: $token",
         ]);
 
         $response = curl_exec($curl);
@@ -77,19 +84,19 @@ class BKTApiRequest
 
     public function get_headers_from_curl_response($header_content)
     {
-        $headers = array();
+        $headers = [];
 
         // Split the string on every "double" new line.
         $arr_requests = explode("\r\n\r\n", $header_content);
 
         // Loop of response headers. The "count() -1" is to
         // avoid an empty row for the extra line break before the body of the response.
-        for ($index = 0; $index < count($arr_requests) -1; $index++) {
+        for ($index = 0; $index < count($arr_requests) - 1; ++$index) {
             foreach (explode("\r\n", $arr_requests[$index]) as $i => $line) {
                 if ($i === 0) {
                     $headers[$index]['http_code'] = $line;
                 } else {
-                    list ($key, $value) = explode(': ', $line);
+                    list($key, $value) = explode(': ', $line);
                     $headers[$index][$key] = $value;
                 }
             }
@@ -101,7 +108,7 @@ class BKTApiRequest
     /**
      * This function is useful for serializing multidimensional arrays, and avoid getting
      * the "Array to string conversion" notice
-     * Also support file by CURLFile class
+     * Also support file by CURLFile class.
      */
     public function http_build_query_for_curl($arrays, $new = [], $prefix = null)
     {
@@ -116,6 +123,18 @@ class BKTApiRequest
                 $new[$k] = $value;
             }
         }
+
         return $new;
+    }
+
+    private function has_ssl($domain)
+    {
+        $stream = stream_context_create(['ssl' => ['capture_peer_cert' => true]]);
+        $read = @fopen($domain, 'rb', false, $stream);
+        $cont = @stream_context_get_params($read);
+        $var = ($cont['options']['ssl']['peer_certificate']);
+        $result = (!is_null($var)) ? true : false;
+
+        return $result;
     }
 }
