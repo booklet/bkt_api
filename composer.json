@@ -1,13 +1,13 @@
 {
-  "name": "boooklet/bkt_api",
+  "name": "booklet/bkt_api",
   "repositories": [
     {
       "type": "package",
       "package": {
-        "name": "boooklet/bkt_api",
+        "name": "booklet/bkt_api",
         "type": "package",
         "source": {
-          "url": "git@github.com/boooklet/bkt_api.git",
+          "url": "git@github.com/booklet/bkt_api.git",
           "type": "git",
           "reference": "master"
         }
